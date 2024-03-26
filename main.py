@@ -8,10 +8,17 @@ import random
 import ssl
 import json
 import time
+import os
 import uuid
 from loguru import logger
 from websockets_proxy import Proxy, proxy_connect
 
+try:
+    USER = os.environ['USER_ID']
+    PROXY = os.environ['PROXY']
+except:
+    USER = ''
+    PROXY = ''
 
 async def connect_to_wss(socks5_proxy, user_id):
     device_id = str(uuid.uuid3(uuid.NAMESPACE_DNS, socks5_proxy))
@@ -20,7 +27,7 @@ async def connect_to_wss(socks5_proxy, user_id):
         try:
             await asyncio.sleep(random.randint(1, 10) / 10)
             custom_headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0"
             }
             ssl_context = ssl.create_default_context()
             ssl_context.check_hostname = False
@@ -72,13 +79,11 @@ async def connect_to_wss(socks5_proxy, user_id):
 
 
 async def main():
-    # TODO 修改user_id
-    _user_id = 'user_id'
     # TODO 修改代理列表
     socks5_proxy_list = [
-        'socks5://user:pwd@ip:port',
+        PROXY,
     ]
-    tasks = [asyncio.ensure_future(connect_to_wss(i, _user_id)) for i in socks5_proxy_list]
+    tasks = [asyncio.ensure_future(connect_to_wss(i, USER)) for i in socks5_proxy_list]
     await asyncio.gather(*tasks)
 
 
